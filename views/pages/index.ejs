@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script type="text/javascript">
+        function exportToExcel(tableid) {
+            var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+            var textRange; var j = 0;
+            tab = document.getElementById(tableid);//.getElementsByTagName('table'); // id of table
+            if (tab == null) {
+                return false;
+            }
+            if (tab.rows.length == 0) {
+                return false;
+            }
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                //tab_text=tab_text+"</tr>";
+            }
+
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, "download.xls");
+            }
+            else                 //other browser not tested on IE 11
+                //sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+                try {
+                    var blob = new Blob([tab_text], { type: "application/vnd.ms-excel" });
+                    window.URL = window.URL || window.webkitURL;
+                    link = window.URL.createObjectURL(blob);
+                    a = document.createElement("a");
+                    if (document.getElementById("caption") != null) {
+                        a.download = document.getElementById("caption").innerText;
+                    }
+                    else {
+                        a.download = 'download';
+                    }
+
+                    a.href = link;
+
+                    document.body.appendChild(a);
+
+                    a.click();
+
+                    document.body.removeChild(a);
+                } catch (e) {
+                }
+
+
+            return false;
+            //return (sa);
+        }
+    </script>
+</head>
+
+<body>
+   
+    <% let startDateSuriya = 1 %>
+    <% let endDateSuriya = 31 %>
+    <% let startMonthSuriya = 1 %>
+    <% let endMonthSuriya = 12 %>
+    <% let startYearSuriya = 2400 %>
+    <% let endYearSuriya = 2600 %>
+    <% let startJunKaraDate = 6%>
+    <% let endJunKaraDate = 15%>
+    <% let startJunKaraMonth = 2%>
+    <% let endJunKaraMonth = 12%>
+    <% let kangUpKangRam = "ขึ้น" %>
+    <% var yearSpecial = "ปีปกติ" %>
+    <% var yearSpecialPlus = "ปีปกติ" %>
+    <div class="container">
+        <table id="tblexportData" class="table">
+            <thead>
+                <tr>
+                    <th>ปี(สุริยคติ)</th>
+                    <th>เดือน(สุริยคติ)</th>
+                    <th>วัน(สุริยคติ)</th>
+                    <th>เดือน(จันทรคติ)</th>
+                    <th>ข้างขึ้น/ข้างแรม</th>
+                    <th>คํ่า</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <% for(startYearSuriya; startYearSuriya <= endYearSuriya; startYearSuriya++) { %>
+                <% for(startMonthSuriya; startMonthSuriya <= endMonthSuriya; startMonthSuriya++ ) { %>
+                <% checkMonth() %>
+                <% this.yearSpecialPlus = checkYearAtiSuratin() %>
+                <% this.yearSpecial = checkYear()  %>
+                <% if(startYearSuriya == 2401){
+                    console.log(this.yearSpecial)
+                } %>
+                
+             %>
+                <% for(startDateSuriya; startDateSuriya <= endDateSuriya; startDateSuriya++) { %>
+                    <% if(this.yearSpecialPlus == "ปีอธิกสุรทิน") {
+                        let oldendDateSuriya = endDateSuriya
+                         if(startMonthSuriya == 2) { 
+                            endDateSuriya = 29
+                            
+                         }else{
+                             endDateSuriya = oldendDateSuriya
+                         }
+                     }else if(startMonthSuriya == 2){
+                         endDateSuriya = 28
+                    }  %>
+                <% checkMonthJunKara() %>
+                <tr>
+                    <td><%= startYearSuriya %></td>
+                    <td><%= startMonthSuriya %></td>
+                    <td><%= startDateSuriya %></td>
+                    <% if(startJunKaraMonth == 9 && this.yearSpecial ==="ปีอธิกมาส") { endJunKaraDate = 15 %>
+                    <td>8,8</td>
+
+                    <% }else if(this.yearSpecial ==="ปีอธิกมาส" && startJunKaraMonth > 9){ %>
+                    <td><%= startJunKaraMonth - 1 %> </td>
+                    <% }else { %>
+                    <td><%= startJunKaraMonth %> </td>
+                    <% } %>
+
+                    <% if(startJunKaraDate > endJunKaraDate){
+            startJunKaraDate = 1
+            if(kangUpKangRam == "ขึ้น"){
+            kangUpKangRam = "แรม"
+            }else{
+                kangUpKangRam = "ขึ้น"   
+            }
+        }
+         
+        %>
+                    <td><%= kangUpKangRam %></td>
+                    <td><%= startJunKaraDate %></td>
+                    <% startJunKaraDate++ %>
+                    <% if(startJunKaraDate > endJunKaraDate && kangUpKangRam == "แรม" ){
+            startJunKaraMonth++
+            startJunKaraDate = 1
+            kangUpKangRam = "ขึ้น" 
+            if(startJunKaraMonth > endJunKaraMonth){
+                startJunKaraMonth = 1
+            }  
+        } %>
+                </tr>
+                <% } %>
+                <% startDateSuriya = 1 %>
+                <% } %>
+                <% startMonthSuriya = 1 %>
+                <% } %>
+            </tbody>
+
+        </table>
+
+        <% 
+    
+   
+    //console.log(obj)
+    function dataFind(data){
+        let year = "2401"
+        return data.yearBUD === startYearSuriya.toString();
+    }
+
+    
+        function checkYearAtiSuratin(){
+            let stockYear = startYearSuriya-543
+            let yearSpecialPlus
+            if(stockYear % 4 == 0){
+                if(stockYear % 100 == 0){
+        
+                    if(stockYear % 400 == 0){
+                        yearSpecialPlus = "ปีอธิกสุรทิน"
+                    }else{
+                        yearSpecialPlus = "ไม่ใช่ปีอธิกสุรทิน"
+                    }
+        
+                }else{
+                    yearSpecialPlus = "ปีอธิกสุรทิน"
+                }
+                
+            }else{
+                yearSpecialPlus = "ไม่ใช่ปีอธิกสุรทิน"
+        
+            }
+        
+            return yearSpecialPlus
+        }
+    
+        function checkYear(){
+        let findTypeYear = data.Sheet1.find(dataFind).code
+        let yearSpecial
+    
+
+        if(findTypeYear == 2){
+    
+           
+            yearSpecial = "ปีอธิกมาส"
+            endJunKaraMonth = 13
+    
+        }else if(findTypeYear == 1){
+    
+            yearSpecial = "ปีอธิกวาร"
+            endJunKaraMonth = 12
+    
+        }else if(findTypeYear == 0){
+            yearSpecial = "ปีปกติ"
+            endJunKaraMonth = 12
+        }
+        
+       
+       
+        
+        return yearSpecial
+    
+    } 
+    
+    
+    function checkMonth(){
+    
+        if(startMonthSuriya == 1 || startMonthSuriya == 3 || startMonthSuriya == 5 || startMonthSuriya == 7 || startMonthSuriya == 8 || startMonthSuriya == 10 || startMonthSuriya == 12  )
+        {
+            endDateSuriya = 31
+        }else{
+            endDateSuriya = 30
+    
+        }
+    
+    }
+    
+    function checkMonthJunKara(){
+        let monthJunkara = startJunKaraMonth
+        if(this.yearSpecial != "ปีอธิกวาร"){
+            if(this.yearSpecial == "ปีอธิกมาส" && startJunKaraMonth >= 9){
+                monthJunkara = monthJunkara - 1
+            }
+        if(monthJunkara%2 != 0 && kangUpKangRam == "แรม") {
+            endJunKaraDate = 14
+        }else{
+            endJunKaraDate = 15
+        }
+    }else if(startJunKaraMonth == 7 && this.yearSpecial == "ปีอธิกวาร" && kangUpKangRam == "แรม"){
+            endJunKaraDate = 15
+        }
+        else if(this.yearSpecial == "ปีอธิกวาร" && kangUpKangRam == "แรม" && monthJunkara%2 != 0){
+            endJunKaraDate = 14
+        }else{
+            endJunKaraDate = 15
+        }
+      
+    }
+    
+ 
+    
+    
+    %>
+
+
+        <button onclick="exportToExcel('tblexportData')" class="btn btn-success">Export Table Data To Excel
+            File</button>
+    </div>
+
+</body>
+
+</html>
